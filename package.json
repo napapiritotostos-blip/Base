@@ -1,0 +1,501 @@
+{
+  "name": "hoplite-vscode",
+  "displayName": "Hoplite Agent",
+  "description": "Work with the Hoplite cloud coding agent from VS Code: chat, threads, live run updates, model and run parameter selection.",
+  "version": "0.1.0",
+  "publisher": "napapiritotostos-blip",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/napapiritotostos-blip/Base.git"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "AI",
+    "Chat"
+  ],
+  "keywords": [
+    "hoplite",
+    "agent",
+    "ai",
+    "coding agent"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "Workspace-level Hoplite settings are ignored in untrusted workspaces.",
+      "restrictedConfigurations": [
+        "hoplite.projectId",
+        "hoplite.model",
+        "hoplite.reasoning",
+        "hoplite.speed",
+        "hoplite.spendLimitUsd",
+        "hoplite.autoMerge",
+        "hoplite.repositories",
+        "hoplite.onBehalfOfUserId"
+      ]
+    }
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "hoplite",
+          "title": "Hoplite",
+          "icon": "media/hoplite.svg"
+        }
+      ]
+    },
+    "views": {
+      "hoplite": [
+        {
+          "type": "webview",
+          "id": "hoplite.chat",
+          "name": "Chat"
+        },
+        {
+          "id": "hoplite.threads",
+          "name": "Threads"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "hoplite.threads",
+        "contents": "Connect VS Code to your Hoplite workspace.\n[Set API Key](command:hoplite.setApiKey)",
+        "when": "!hoplite.signedIn"
+      },
+      {
+        "view": "hoplite.threads",
+        "contents": "Choose the Hoplite project to work in.\n[Select Project](command:hoplite.selectProject)",
+        "when": "hoplite.signedIn && !hoplite.hasProject"
+      },
+      {
+        "view": "hoplite.threads",
+        "contents": "No threads in this project yet.\n[New Thread](command:hoplite.newThread)",
+        "when": "hoplite.signedIn && hoplite.hasProject"
+      }
+    ],
+    "commands": [
+      {
+        "command": "hoplite.setApiKey",
+        "title": "Set API Key",
+        "category": "Hoplite",
+        "icon": "$(key)"
+      },
+      {
+        "command": "hoplite.clearApiKey",
+        "title": "Clear API Key",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.selectProject",
+        "title": "Select Project",
+        "category": "Hoplite",
+        "icon": "$(project)"
+      },
+      {
+        "command": "hoplite.newThread",
+        "title": "New Thread",
+        "category": "Hoplite",
+        "icon": "$(add)"
+      },
+      {
+        "command": "hoplite.refresh",
+        "title": "Refresh",
+        "category": "Hoplite",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "hoplite.selectModel",
+        "title": "Select Model",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.selectReasoning",
+        "title": "Select Reasoning Effort",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.selectSpeed",
+        "title": "Select Speed",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.configureRunParameters",
+        "title": "Configure Run Parameters",
+        "category": "Hoplite",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "hoplite.sendPrompt",
+        "title": "Send Prompt…",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.addSelection",
+        "title": "Add Selection to Hoplite Chat",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.stopRun",
+        "title": "Stop Run",
+        "category": "Hoplite",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "hoplite.retryThread",
+        "title": "Retry Last Run",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.compactThread",
+        "title": "Compact Thread",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.showDiff",
+        "title": "Show Thread Diff",
+        "category": "Hoplite",
+        "icon": "$(diff)"
+      },
+      {
+        "command": "hoplite.openPullRequest",
+        "title": "Open Pull Request",
+        "category": "Hoplite",
+        "icon": "$(git-pull-request)"
+      },
+      {
+        "command": "hoplite.renameThread",
+        "title": "Rename Thread",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.setSpendLimit",
+        "title": "Set Thread Spend Limit",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.archiveThread",
+        "title": "Archive Thread",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.openThread",
+        "title": "Open Thread",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.loadMoreThreads",
+        "title": "Load More Threads",
+        "category": "Hoplite"
+      },
+      {
+        "command": "hoplite.showLog",
+        "title": "Show Log",
+        "category": "Hoplite"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "hoplite.openThread",
+          "when": "false"
+        },
+        {
+          "command": "hoplite.loadMoreThreads",
+          "when": "false"
+        },
+        {
+          "command": "hoplite.stopRun",
+          "when": "hoplite.runActive"
+        },
+        {
+          "command": "hoplite.retryThread",
+          "when": "hoplite.hasThread"
+        },
+        {
+          "command": "hoplite.compactThread",
+          "when": "hoplite.hasThread"
+        },
+        {
+          "command": "hoplite.showDiff",
+          "when": "hoplite.hasThread"
+        },
+        {
+          "command": "hoplite.openPullRequest",
+          "when": "hoplite.hasThread"
+        },
+        {
+          "command": "hoplite.renameThread",
+          "when": "hoplite.hasThread"
+        },
+        {
+          "command": "hoplite.setSpendLimit",
+          "when": "hoplite.hasThread"
+        },
+        {
+          "command": "hoplite.archiveThread",
+          "when": "hoplite.hasThread"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "hoplite.stopRun",
+          "when": "view == hoplite.chat && hoplite.runActive",
+          "group": "navigation@0"
+        },
+        {
+          "command": "hoplite.newThread",
+          "when": "view == hoplite.chat || view == hoplite.threads",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hoplite.refresh",
+          "when": "view == hoplite.chat || view == hoplite.threads",
+          "group": "navigation@2"
+        },
+        {
+          "command": "hoplite.selectProject",
+          "when": "view == hoplite.threads",
+          "group": "navigation@3"
+        },
+        {
+          "command": "hoplite.showDiff",
+          "when": "view == hoplite.chat && hoplite.hasThread",
+          "group": "1_thread@1"
+        },
+        {
+          "command": "hoplite.openPullRequest",
+          "when": "view == hoplite.chat && hoplite.hasThread",
+          "group": "1_thread@2"
+        },
+        {
+          "command": "hoplite.retryThread",
+          "when": "view == hoplite.chat && hoplite.hasThread",
+          "group": "1_thread@3"
+        },
+        {
+          "command": "hoplite.compactThread",
+          "when": "view == hoplite.chat && hoplite.hasThread",
+          "group": "1_thread@4"
+        },
+        {
+          "command": "hoplite.renameThread",
+          "when": "view == hoplite.chat && hoplite.hasThread",
+          "group": "1_thread@5"
+        },
+        {
+          "command": "hoplite.setSpendLimit",
+          "when": "view == hoplite.chat && hoplite.hasThread",
+          "group": "1_thread@6"
+        },
+        {
+          "command": "hoplite.archiveThread",
+          "when": "view == hoplite.chat && hoplite.hasThread",
+          "group": "1_thread@7"
+        },
+        {
+          "command": "hoplite.selectModel",
+          "when": "view == hoplite.chat",
+          "group": "2_params@1"
+        },
+        {
+          "command": "hoplite.selectReasoning",
+          "when": "view == hoplite.chat",
+          "group": "2_params@2"
+        },
+        {
+          "command": "hoplite.selectSpeed",
+          "when": "view == hoplite.chat",
+          "group": "2_params@3"
+        },
+        {
+          "command": "hoplite.configureRunParameters",
+          "when": "view == hoplite.chat",
+          "group": "2_params@4"
+        },
+        {
+          "command": "hoplite.selectProject",
+          "when": "view == hoplite.chat",
+          "group": "3_account@1"
+        },
+        {
+          "command": "hoplite.setApiKey",
+          "when": "view == hoplite.chat",
+          "group": "3_account@2"
+        },
+        {
+          "command": "hoplite.showLog",
+          "when": "view == hoplite.chat",
+          "group": "3_account@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "hoplite.showDiff",
+          "when": "view == hoplite.threads && viewItem =~ /^thread/",
+          "group": "inline@1"
+        },
+        {
+          "command": "hoplite.openPullRequest",
+          "when": "view == hoplite.threads && viewItem == thread.pr",
+          "group": "inline@2"
+        },
+        {
+          "command": "hoplite.openThread",
+          "when": "view == hoplite.threads && viewItem =~ /^thread/",
+          "group": "1_open@1"
+        },
+        {
+          "command": "hoplite.showDiff",
+          "when": "view == hoplite.threads && viewItem =~ /^thread/",
+          "group": "1_open@2"
+        },
+        {
+          "command": "hoplite.openPullRequest",
+          "when": "view == hoplite.threads && viewItem == thread.pr",
+          "group": "1_open@3"
+        },
+        {
+          "command": "hoplite.renameThread",
+          "when": "view == hoplite.threads && viewItem =~ /^thread/",
+          "group": "2_manage@1"
+        },
+        {
+          "command": "hoplite.setSpendLimit",
+          "when": "view == hoplite.threads && viewItem =~ /^thread/",
+          "group": "2_manage@2"
+        },
+        {
+          "command": "hoplite.archiveThread",
+          "when": "view == hoplite.threads && viewItem =~ /^thread/",
+          "group": "2_manage@3"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "hoplite.addSelection",
+          "when": "editorHasSelection",
+          "group": "9_hoplite"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Hoplite",
+      "properties": {
+        "hoplite.apiBaseUrl": {
+          "type": "string",
+          "default": "https://api.hoplite.sh",
+          "scope": "application",
+          "markdownDescription": "Base URL of the Hoplite API. The API key is only ever sent to this origin. Must use HTTPS (plain HTTP is accepted for `localhost` only)."
+        },
+        "hoplite.projectId": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Hoplite project used when no project has been picked with **Hoplite: Select Project** in this workspace."
+        },
+        "hoplite.model": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Model ID for new threads, as listed by **Hoplite: Select Model**. Empty uses the project or workspace default."
+        },
+        "hoplite.reasoning": {
+          "type": "string",
+          "default": "",
+          "enum": [
+            "",
+            "off",
+            "none",
+            "minimal",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "enumItemLabels": [
+            "Default"
+          ],
+          "markdownDescription": "Reasoning effort for new threads. Empty uses the project or model default. Levels the selected model does not support are not sent."
+        },
+        "hoplite.speed": {
+          "type": "string",
+          "default": "",
+          "enum": [
+            "",
+            "standard",
+            "fast"
+          ],
+          "enumItemLabels": [
+            "Default"
+          ],
+          "markdownDescription": "Speed tier for new threads. `fast` is only sent for models that offer a fast tier."
+        },
+        "hoplite.spendLimitUsd": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "markdownDescription": "Lifetime spend limit in US dollars applied to new threads. `0` creates threads without a limit."
+        },
+        "hoplite.autoMerge": {
+          "type": "string",
+          "default": "inherit",
+          "enum": [
+            "inherit",
+            "on",
+            "off"
+          ],
+          "enumDescriptions": [
+            "Follow the Hoplite workspace default.",
+            "Merge the thread's pull request automatically.",
+            "Never merge the thread's pull request automatically."
+          ],
+          "markdownDescription": "Automatic pull request merging for new threads."
+        },
+        "hoplite.repositories": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string",
+            "pattern": "^[^/\\s@]+/[^/\\s@]+(@\\S+)?$"
+          },
+          "markdownDescription": "Repositories and base branches for new threads, as `owner/repo` or `owner/repo@branch`. Empty uses the project's repositories and branches."
+        },
+        "hoplite.onBehalfOfUserId": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Service-account keys only: ID of the workspace member new threads are created for. Requires an account that an owner granted **Act as member**."
+        },
+        "hoplite.chat.showActivity": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show the agent's tool calls, thinking and status entries in the chat."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "check": "npm run typecheck && npm test",
+    "vscode:prepublish": "node esbuild.mjs --production",
+    "package": "vsce package --no-dependencies --skip-license"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.2.0",
+    "@types/node": "^20.19.43",
+    "@types/vscode": "1.90.0",
+    "@vscode/vsce": "^4.1.0",
+    "esbuild": "^0.28.2",
+    "markdown-it": "^15.0.3",
+    "typescript": "^7.0.2"
+  }
+}
